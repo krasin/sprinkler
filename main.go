@@ -19,7 +19,22 @@ type IndexData struct {
 	State string
 }
 
-const templ = `Current state is {{.State}}.
+const templ = `<html>
+<head>
+<script>
+function redirect(url) {
+  window.location = url;
+}
+</script>
+</head>
+<body>
+Current state is {{.State}}.
+<br/>
+<br/>
+<button name="on_btn" onclick="redirect('/switch?state=on')">On</button>
+<button name="off_btn" onclick="redirect('/switch?state=off')">Off</button>
+</body>
+</html>
 `
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
