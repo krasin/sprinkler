@@ -46,6 +46,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	state := strings.TrimSpace(string(data))
+	switch state {
+	case "0":
+		state = "off"
+	case "1":
+		state = "on"
+	}
 
 	t := template.New("Index template")
 	if t, err = t.Parse(templ); err != nil {
