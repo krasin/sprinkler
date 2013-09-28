@@ -39,7 +39,7 @@ func switchHandler(w http.ResponseWriter, r *http.Request) {
 			html.EscapeString(err.Error()))
 		return
 	}
-	fmt.Fprintf(w, "OK!\n")
+	http.Redirect(w, r, "/", 307)
 }
 
 func main() {
