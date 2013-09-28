@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"html"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,15 +15,30 @@ var port = flag.Int("port", 8000, "Port to serve the sprinkler control interface
 var pin = flag.String("pin_path", "/sys/class/gpio/gpio48/value",
 	"Path to pin's value file. It's expected to have direction set to 'out'")
 
+type IndexData struct {
+	State string
+}
+
+const templ = `Current state is {{.State}}.
+`
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	state, err := ioutil.ReadFile(*pin)
+	data, err := ioutil.ReadFile(*pin)
 	if err != nil {
 		fmt.Fprintf(w, "Error writing to [%q]: %q",
 			html.EscapeString(*pin),
 			html.EscapeString(err.Error()))
 		return
 	}
-	fmt.Fprintf(w, "Current state is: %q", html.EscapeString(strings.TrimSpace(string(state))))
+	state := strings.TrimSpace(string(data))
+
+	t := template.New("Index template")
+	if t, err = t.Parse(templ); err != nil {
+		log.Fatal("templ parse failed: ", err)
+	}
+	err = t.Execute(w, &IndexData{
+		State: state,
+	})
 }
 
 func switchHandler(w http.ResponseWriter, r *http.Request) {
